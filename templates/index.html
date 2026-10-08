@@ -1,1 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Baixador de Reels</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 460px;
+            background: #1e293b;
+            padding: 32px 24px;
+            border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 26px;
+            margin: 0 0 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 22px;
+            border-radius: 9px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #818cf8;
+        }
+
+        button {
+            width: 100%;
+            padding: 17px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 25px;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            margin: 0 auto 15px;
+            border: 4px solid #334155;
+            border-top-color: #818cf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            background: #7f1d1d;
+            border: 1px solid #ef4444;
+            padding: 15px;
+            border-radius: 9px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .info {
+            margin-top: 25px;
+            padding: 15px;
+            background: #0f172a;
+            border-radius: 9px;
+            color: #94a3b8;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="logo">🎬</div>
+
+        <h1>Baixador de Reels</h1>
+
+        <p class="subtitle">
+            Baixe vídeos de perfis públicos do Instagram
+            em um único arquivo ZIP.
+        </p>
+
+        {% if error %}
+        <div class="error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/" id="downloadForm">
+
+            <label for="profile">
+                Perfil do Instagram
+            </label>
+
+            <input
+                type="text"
+                id="profile"
+                name="profile"
+                placeholder="https://www.instagram.com/usuario/"
+                required
+                autocomplete="off"
+            >
+
+            <label for="limit">
+                Quantidade de vídeos
+            </label>
+
+            <select id="limit" name="limit">
+                <option value="10">10 vídeos</option>
+                <option value="25">25 vídeos</option>
+                <option value="50">50 vídeos</option>
+            </select>
+
+            <button type="submit" id="downloadButton">
+                ⬇ Baixar vídeos
+            </button>
+
+        </form>
+
+        <div class="loading" id="loading">
+
+            <div class="spinner"></div>
+
+            <strong>Processando vídeos...</strong>
+
+            <p>
+                Estamos consultando o perfil e preparando
+                o arquivo ZIP.
+            </p>
+
+            <p>
+                Isso pode levar alguns minutos.
+            </p>
+
+        </div>
+
+        <div class="info">
+            ✓ Funciona com perfis públicos.<br>
+            ✓ Organiza os vídeos em um arquivo ZIP.<br>
+            ✓ Limite de até 50 vídeos por solicitação.<br>
+            ✓ Não é necessário informar sua senha.<br><br>
+
+            O Instagram pode limitar consultas automatizadas.
+            Baixe apenas conteúdos que você tem permissão
+            para utilizar.
+        </div>
+
+        <div class="footer">
+            Baixador de Reels • Versão 1.0
+        </div>
+
+    </div>
+
+    <script>
+        const form = document.getElementById("downloadForm");
+        const button = document.getElementById("downloadButton");
+        const loading = document.getElementById("loading");
+
+        form.addEventListener("submit", function() {
+            button.disabled = true;
+            button.textContent = "Preparando download...";
+            loading.style.display = "block";
+        });
+
+        window.addEventListener("pageshow", function() {
+            button.disabled = false;
+            button.textContent = "⬇ Baixar vídeos";
+            loading.style.display = "none";
+        });
+    </script>
+
+</body>
+</html>
